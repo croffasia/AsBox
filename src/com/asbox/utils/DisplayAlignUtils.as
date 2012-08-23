@@ -1,6 +1,6 @@
-package com.airlib.utils 
+package com.asbox.utils 
 {
-	import com.airlib.Application;
+	import com.asbox.Application;
 	
 	import flash.display.NativeWindow;
 	import flash.display.Screen;

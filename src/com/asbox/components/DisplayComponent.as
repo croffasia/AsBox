@@ -1,48 +1,72 @@
-package com.airlib.components 
+package com.asbox.components 
 {
-	import com.airlib.Application;
-	import com.airlib.enums.ComponentEnums;
-	import com.airlib.components.events.ComponentEvent;
-	import com.airlib.components.interfaces.IComponent;
-	import com.airlib.components.interfaces.IWindowComponent;
-	import com.airlib.managers.ComponentManager;
-	import com.airlib.managers.EventManager;
-	import com.airlib.utils.EventsMap;
+	import com.asbox.Application;
+	import com.asbox.enums.ComponentEnums;
+	import com.asbox.components.events.ComponentEvent;
+	import com.asbox.components.interfaces.IComponent;
+	import com.asbox.components.interfaces.IDisplayComponent;
+	import com.asbox.managers.ComponentManager;
+	import com.asbox.managers.EventManager;
+	import com.asbox.utils.EventsMap;
 	
-	import flash.display.NativeWindow;
-	import flash.display.NativeWindowInitOptions;
-	import flash.display.NativeWindowRenderMode;
-	import flash.events.Event;
-		
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
+	
 	/**
 	 * ...
 	 * @author Poluosmak Andrew
 	 */
-	public class WindowComponent extends NativeWindow implements IWindowComponent 
-	{
+	public class DisplayComponent extends Sprite implements IDisplayComponent 
+	{		
 		private var _status:int = ComponentEnums.CREATED;
+		private var _container:DisplayObjectContainer;
+		private var _OwnerComponent:IComponent;
 		private var _Components:Array = [];		
 		private var _ComponentName:String = "";
 		private var _ComponentHash:String = "";
-		private var _OwnerComponent:IComponent;
+		private var _EnableAutoRegisterComponents:Boolean = true;
 		
-		public function WindowComponent(init:NativeWindowInitOptions = null) 
-		{			
-			if (init == null) 
-			{
-				init = new NativeWindowInitOptions();
-				init.renderMode = NativeWindowRenderMode.GPU;
-			}
+		public function DisplayComponent(DisplayContainer:DisplayObjectContainer = null) 
+		{
+			super();				
 			
-			super(init);					
-			ComponentManager.getInstance().Register(this as IComponent);
-								
-			this.PreInitialize();
+			ComponentManager.getInstance().Register(this);
+			
+			_container = DisplayContainer;		
+			this.PreInitialize();			
+		}
+
+		public function Create(DisplayContainer:DisplayObjectContainer = null):void 
+		{
+			if(DisplayContainer != null)
+				_container = DisplayContainer;
+				
+			if (_container != null)
+				_container.addChild(this);
 		}
 		
-		public function PreInitialize():void
-		{			
-			EventManager.getInstance().add(this, Event.CLOSING, onNativeWindowClosing, true);	
+		public function PreInitialize():void 
+		{					
+			if (_EnableAutoRegisterComponents)
+			{
+				if (this.numChildren > 0)
+				{
+					var children:*;
+					
+					for (var i:int = 0; i < this.numChildren; i++ )
+					{
+						children = this.getChildAt(i);
+						
+						if (children is IComponent)
+						{
+							(children as IComponent).OwnerComponent = this;
+							this.AddComponent((children as IComponent).ComponentHash);
+						}
+					}
+				}
+			}	
+			
+			trace("DisplayComponent :: PreInitialize Components length "+Components.length);
 		}
 		
 		public function Initialize(name:String):void 
@@ -51,7 +75,7 @@ package com.airlib.components
 			
 			_status = ComponentEnums.CREATED; 	
 			this.Call(ComponentEvent.LOADED);
-		}		
+		}
 		
 		public function ActivateComponent():void
 		{
@@ -70,25 +94,15 @@ package com.airlib.components
 			return _status;
 		}
 		
-		public function Show():void 
-		{
-			this.activate();
-		}
-		
-		public function Hide():void 
-		{
-			//this.
-		}
-		
 		public function AddComponent(hash:String):Boolean 
 		{ 
 			var _component:IComponent = ComponentManager.getInstance().GetByHash(hash);
 			
 			if (_component == null)
 				return false;
+				
+			_component.OwnerComponent = this;
 						
-			_component.OwnerComponent = this as IComponent;
-			
 			_Components.push(hash);
 			return true;
 		}
@@ -101,7 +115,7 @@ package com.airlib.components
 			{
 				return ComponentManager.getInstance().GetByHash(_Components[index]);			
 			}
-													
+								
 			return null;
 		}
 		
@@ -171,7 +185,7 @@ package com.airlib.components
 			}
 				
 			return false;
-		}	
+		}		
 		
 		public function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void
 		{
@@ -187,13 +201,16 @@ package com.airlib.components
 			
 			if (Application.instance.hasEventListener(eventType))
 			{
-				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash));
+				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentHash, this.ComponentHash));
 			}
 		}
 		
 		public function Dispose():void 
-		{									
-			EventManager.getInstance().remove(this);
+		{
+			if (parent != null)
+			{
+				parent.removeChild(this);
+			}
 			
 			if (_Components != null && _Components.length > 0)
 			{
@@ -201,21 +218,14 @@ package com.airlib.components
 				{
 					this.RemoveComponent(_Components[0]);
 				}
-			}					
-			
-			if (_OwnerComponent != null)
-			{
-				_OwnerComponent.RemoveComponent(this.ComponentHash);
 			}
 			
-			this.close();
+			if (OwnerComponent != null)
+			{
+				OwnerComponent.RemoveComponent(this.ComponentHash);
+			}
+			
 			this.Call(ComponentEvent.DISPOSED);
-		}
-		
-		private function onNativeWindowClosing(event:Event):void 
-		{
-			event.preventDefault();
-			this.Dispose();							
 		}
 		
 		public function get Components():Array 
@@ -233,6 +243,16 @@ package com.airlib.components
 			_ComponentName = value;
 		}
 		
+		public function get EnableAutoRegisterComponents():Boolean
+		{
+			return _EnableAutoRegisterComponents;
+		}
+		
+		public function set EnableAutoRegisterComponents(value:Boolean):void
+		{
+			_EnableAutoRegisterComponents = value;
+		}
+		
 		public function get OwnerComponent():IComponent 
 		{
 			return _OwnerComponent;
@@ -240,7 +260,7 @@ package com.airlib.components
 		
 		public function set OwnerComponent(value:IComponent):void 
 		{
-			_OwnerComponent= value;
+			_OwnerComponent = value;
 		}
 		
 		public function get ComponentHash():String 
@@ -252,7 +272,6 @@ package com.airlib.components
 		{
 			_ComponentHash = value;
 		}
-		
 	}
 
 }

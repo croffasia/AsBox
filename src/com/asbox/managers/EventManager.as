@@ -3,9 +3,9 @@
  * Copyright (C) 2011 Mr.Bee, LLC
  * For more information see http://www.mrbee.com.ua
  ****************************************************************/
-package com.airlib.managers
+package com.asbox.managers
 {
-	import com.airlib.managers.objects.EventObject;
+	import com.asbox.managers.objects.EventObject;
 	
 	import flash.events.IEventDispatcher;
 	

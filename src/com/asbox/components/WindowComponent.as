@@ -1,47 +1,57 @@
-package com.airlib.components 
+package com.asbox.components 
 {
-	import com.airlib.Application;
-	import com.airlib.enums.ComponentEnums;
-	import com.airlib.components.events.ComponentEvent;
-	import com.airlib.components.interfaces.IComponent;
-	import com.airlib.managers.ComponentManager;
-	import com.airlib.managers.EventManager;
-	import com.airlib.utils.EventsMap;
+	import com.asbox.Application;
+	import com.asbox.enums.ComponentEnums;
+	import com.asbox.components.events.ComponentEvent;
+	import com.asbox.components.interfaces.IComponent;
+	import com.asbox.components.interfaces.IWindowComponent;
+	import com.asbox.managers.ComponentManager;
+	import com.asbox.managers.EventManager;
+	import com.asbox.utils.EventsMap;
 	
-	import flash.events.EventDispatcher;
-	import flash.events.IEventDispatcher;
-	
+	import flash.display.NativeWindow;
+	import flash.display.NativeWindowInitOptions;
+	import flash.display.NativeWindowRenderMode;
+	import flash.events.Event;
+		
 	/**
 	 * ...
 	 * @author Poluosmak Andrew
 	 */
-	public class Component extends EventDispatcher implements IComponent 
-	{		
+	public class WindowComponent extends NativeWindow implements IWindowComponent 
+	{
 		private var _status:int = ComponentEnums.CREATED;
-		private var _OwnerComponent:IComponent;
 		private var _Components:Array = [];		
 		private var _ComponentName:String = "";
 		private var _ComponentHash:String = "";
+		private var _OwnerComponent:IComponent;
 		
-		public function Component(target:IEventDispatcher=null) 
-		{
-			super(target);			
-			ComponentManager.getInstance().Register(this);
+		public function WindowComponent(init:NativeWindowInitOptions = null) 
+		{			
+			if (init == null) 
+			{
+				init = new NativeWindowInitOptions();
+				init.renderMode = NativeWindowRenderMode.GPU;
+			}
 			
+			super(init);					
+			ComponentManager.getInstance().Register(this as IComponent);
+								
 			this.PreInitialize();
-		}		
+		}
 		
 		public function PreInitialize():void
 		{			
+			EventManager.getInstance().add(this, Event.CLOSING, onNativeWindowClosing, true);	
 		}
 		
 		public function Initialize(name:String):void 
 		{
-			this.ComponentName = name;			
+			this.ComponentName = name;
 			
 			_status = ComponentEnums.CREATED; 	
 			this.Call(ComponentEvent.LOADED);
-		}
+		}		
 		
 		public function ActivateComponent():void
 		{
@@ -60,15 +70,25 @@ package com.airlib.components
 			return _status;
 		}
 		
+		public function Show():void 
+		{
+			this.activate();
+		}
+		
+		public function Hide():void 
+		{
+			//this.
+		}
+		
 		public function AddComponent(hash:String):Boolean 
 		{ 
 			var _component:IComponent = ComponentManager.getInstance().GetByHash(hash);
 			
 			if (_component == null)
 				return false;
-				
-			_component.OwnerComponent = this;
 						
+			_component.OwnerComponent = this as IComponent;
+			
 			_Components.push(hash);
 			return true;
 		}
@@ -81,7 +101,7 @@ package com.airlib.components
 			{
 				return ComponentManager.getInstance().GetByHash(_Components[index]);			
 			}
-								
+													
 			return null;
 		}
 		
@@ -151,34 +171,14 @@ package com.airlib.components
 			}
 				
 			return false;
-		}		
-		
-		public function Dispose():void 
-		{			
-			if (_Components != null && _Components.length > 0)
-			{
-				while (_Components.length > 0)
-				{
-					this.RemoveComponent(_Components[0]);
-				}
-			}
-			
-			if (OwnerComponent != null)
-			{
-				OwnerComponent.RemoveComponent(this.ComponentHash);
-			}
-			
-			this.Call(ComponentEvent.DISPOSED);
-		}
+		}	
 		
 		public function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void
 		{
 			if (component == "")
 				component = this.ComponentHash;
 				
-			var eventType:String = EventsMap.CreateType(component, type);
-				
-			EventManager.getInstance().add(Application.instance, eventType, callback, autoRemove, component);
+			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, component);
 		}
 		
 		protected function Call(type:String):void
@@ -189,6 +189,33 @@ package com.airlib.components
 			{
 				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash));
 			}
+		}
+		
+		public function Dispose():void 
+		{									
+			EventManager.getInstance().remove(this);
+			
+			if (_Components != null && _Components.length > 0)
+			{
+				while (_Components.length > 0)
+				{
+					this.RemoveComponent(_Components[0]);
+				}
+			}					
+			
+			if (_OwnerComponent != null)
+			{
+				_OwnerComponent.RemoveComponent(this.ComponentHash);
+			}
+			
+			this.close();
+			this.Call(ComponentEvent.DISPOSED);
+		}
+		
+		private function onNativeWindowClosing(event:Event):void 
+		{
+			event.preventDefault();
+			this.Dispose();							
 		}
 		
 		public function get Components():Array 
@@ -213,7 +240,7 @@ package com.airlib.components
 		
 		public function set OwnerComponent(value:IComponent):void 
 		{
-			_OwnerComponent = value;
+			_OwnerComponent= value;
 		}
 		
 		public function get ComponentHash():String 
@@ -225,6 +252,7 @@ package com.airlib.components
 		{
 			_ComponentHash = value;
 		}
+		
 	}
 
 }

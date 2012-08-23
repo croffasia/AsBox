@@ -1,9 +1,9 @@
-package com.airlib.managers
+package com.asbox.managers
 {
 	import com.adobe.crypto.MD5;
-	import com.airlib.components.events.ComponentEvent;
-	import com.airlib.components.interfaces.IComponent;
-	import com.airlib.enums.DebugEnums;
+	import com.asbox.components.events.ComponentEvent;
+	import com.asbox.components.interfaces.IComponent;
+	import com.asbox.enums.DebugEnums;
 	
 	import flash.utils.Dictionary;
 	

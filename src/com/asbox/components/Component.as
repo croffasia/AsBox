@@ -1,77 +1,43 @@
-package com.airlib.components 
+package com.asbox.components 
 {
-	import com.airlib.Application;
-	import com.airlib.enums.ComponentEnums;
-	import com.airlib.components.events.ComponentEvent;
-	import com.airlib.components.interfaces.IComponent;
-	import com.airlib.components.interfaces.IDisplayComponent;
-	import com.airlib.managers.ComponentManager;
-	import com.airlib.managers.EventManager;
-	import com.airlib.utils.EventsMap;
+	import com.asbox.Application;
+	import com.asbox.enums.ComponentEnums;
+	import com.asbox.components.events.ComponentEvent;
+	import com.asbox.components.interfaces.IComponent;
+	import com.asbox.managers.ComponentManager;
+	import com.asbox.managers.EventManager;
+	import com.asbox.utils.EventsMap;
 	
-	import flash.display.DisplayObjectContainer;
-	import flash.display.Sprite;
+	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
 	
 	/**
 	 * ...
 	 * @author Poluosmak Andrew
 	 */
-	public class DisplayComponent extends Sprite implements IDisplayComponent 
+	public class Component extends EventDispatcher implements IComponent 
 	{		
 		private var _status:int = ComponentEnums.CREATED;
-		private var _container:DisplayObjectContainer;
 		private var _OwnerComponent:IComponent;
 		private var _Components:Array = [];		
 		private var _ComponentName:String = "";
 		private var _ComponentHash:String = "";
-		private var _EnableAutoRegisterComponents:Boolean = true;
 		
-		public function DisplayComponent(DisplayContainer:DisplayObjectContainer = null) 
+		public function Component(target:IEventDispatcher=null) 
 		{
-			super();				
-			
+			super(target);			
 			ComponentManager.getInstance().Register(this);
 			
-			_container = DisplayContainer;		
-			this.PreInitialize();			
-		}
-
-		public function Create(DisplayContainer:DisplayObjectContainer = null):void 
-		{
-			if(DisplayContainer != null)
-				_container = DisplayContainer;
-				
-			if (_container != null)
-				_container.addChild(this);
-		}
+			this.PreInitialize();
+		}		
 		
-		public function PreInitialize():void 
-		{					
-			if (_EnableAutoRegisterComponents)
-			{
-				if (this.numChildren > 0)
-				{
-					var children:*;
-					
-					for (var i:int = 0; i < this.numChildren; i++ )
-					{
-						children = this.getChildAt(i);
-						
-						if (children is IComponent)
-						{
-							(children as IComponent).OwnerComponent = this;
-							this.AddComponent((children as IComponent).ComponentHash);
-						}
-					}
-				}
-			}	
-			
-			trace("DisplayComponent :: PreInitialize Components length "+Components.length);
+		public function PreInitialize():void
+		{			
 		}
 		
 		public function Initialize(name:String):void 
 		{
-			this.ComponentName = name;
+			this.ComponentName = name;			
 			
 			_status = ComponentEnums.CREATED; 	
 			this.Call(ComponentEvent.LOADED);
@@ -187,31 +153,8 @@ package com.airlib.components
 			return false;
 		}		
 		
-		public function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void
-		{
-			if (component == "")
-				component = this.ComponentHash;
-				
-			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, component);
-		}
-		
-		protected function Call(type:String):void
-		{
-			var eventType:String = EventsMap.CreateType(this.ComponentHash, type);
-			
-			if (Application.instance.hasEventListener(eventType))
-			{
-				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentHash, this.ComponentHash));
-			}
-		}
-		
 		public function Dispose():void 
-		{
-			if (parent != null)
-			{
-				parent.removeChild(this);
-			}
-			
+		{			
 			if (_Components != null && _Components.length > 0)
 			{
 				while (_Components.length > 0)
@@ -228,6 +171,26 @@ package com.airlib.components
 			this.Call(ComponentEvent.DISPOSED);
 		}
 		
+		public function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void
+		{
+			if (component == "")
+				component = this.ComponentHash;
+				
+			var eventType:String = EventsMap.CreateType(component, type);
+				
+			EventManager.getInstance().add(Application.instance, eventType, callback, autoRemove, component);
+		}
+		
+		protected function Call(type:String):void
+		{
+			var eventType:String = EventsMap.CreateType(this.ComponentHash, type);
+			
+			if (Application.instance.hasEventListener(eventType))
+			{
+				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash));
+			}
+		}
+		
 		public function get Components():Array 
 		{
 			return _Components;
@@ -241,16 +204,6 @@ package com.airlib.components
 		public function set ComponentName(value:String):void 
 		{
 			_ComponentName = value;
-		}
-		
-		public function get EnableAutoRegisterComponents():Boolean
-		{
-			return _EnableAutoRegisterComponents;
-		}
-		
-		public function set EnableAutoRegisterComponents(value:Boolean):void
-		{
-			_EnableAutoRegisterComponents = value;
 		}
 		
 		public function get OwnerComponent():IComponent 
