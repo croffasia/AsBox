@@ -1,10 +1,11 @@
 package com.asbox.components 
 {
 	import com.asbox.Application;
-	import com.asbox.enums.ComponentEnums;
 	import com.asbox.components.events.ComponentEvent;
 	import com.asbox.components.interfaces.IComponent;
 	import com.asbox.components.interfaces.IWindowComponent;
+	import com.asbox.enums.ComponentEnums;
+	import com.asbox.enums.DebugEnums;
 	import com.asbox.managers.ComponentManager;
 	import com.asbox.managers.EventManager;
 	import com.asbox.utils.EventsMap;
@@ -177,6 +178,9 @@ package com.asbox.components
 		{
 			if (component == "")
 				component = this.ComponentHash;
+			
+			if(DebugEnums.DEBUG_MODE)
+				trace("Listener "+EventsMap.CreateType(component, type));
 				
 			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, this.ComponentHash);
 		}
@@ -191,13 +195,16 @@ package com.asbox.components
 			EventManager.getInstance().removeCallbackEvent(callback, eventType, Application.instance);
 		}
 		
-		protected function Call(type:String):void
+		protected function Call(type:String, data:* = null):void
 		{
 			var eventType:String = EventsMap.CreateType(this.ComponentHash, type);
 			
+			if(DebugEnums.DEBUG_MODE)
+				trace("Call "+eventType);
+			
 			if (Application.instance.hasEventListener(eventType))
 			{
-				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash));
+				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash, data));
 			}
 		}
 		
