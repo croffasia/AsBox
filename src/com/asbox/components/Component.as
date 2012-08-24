@@ -178,7 +178,17 @@ package com.asbox.components
 				
 			var eventType:String = EventsMap.CreateType(component, type);
 				
-			EventManager.getInstance().add(Application.instance, eventType, callback, autoRemove, component);
+			EventManager.getInstance().add(Application.instance, eventType, callback, autoRemove, this.ComponentHash);
+		}
+		
+		public function UnregisterListener(callback:Function, type:String, component:String = ""):void
+		{
+			if (component == "")
+				component = this.ComponentHash;
+			
+			var eventType:String = EventsMap.CreateType(component, type);
+			
+			EventManager.getInstance().removeCallbackEvent(callback, eventType, Application.instance);
 		}
 		
 		protected function Call(type:String):void

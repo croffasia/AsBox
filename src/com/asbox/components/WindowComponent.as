@@ -42,7 +42,7 @@ package com.asbox.components
 		
 		public function PreInitialize():void
 		{			
-			EventManager.getInstance().add(this, Event.CLOSING, onNativeWindowClosing, true);	
+			EventManager.getInstance().add(this, Event.CLOSING, onNativeWindowClosing, true, this.ComponentHash);	
 		}
 		
 		public function Initialize(name:String):void 
@@ -178,7 +178,17 @@ package com.asbox.components
 			if (component == "")
 				component = this.ComponentHash;
 				
-			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, component);
+			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, this.ComponentHash);
+		}
+		
+		public function UnregisterListener(callback:Function, type:String, component:String = ""):void
+		{
+			if (component == "")
+				component = this.ComponentHash;
+			
+			var eventType:String = EventsMap.CreateType(component, type);
+			
+			EventManager.getInstance().removeCallbackEvent(callback, eventType, Application.instance);
 		}
 		
 		protected function Call(type:String):void

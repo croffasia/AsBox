@@ -107,7 +107,7 @@ package com.asbox.managers
 		private function GenerateComponentHash():String
 		{
 			_enqID++;
-			return MD5.hash(new Date().getTime() + "::" + _enqID);
+			return MD5.hash(new Date().time + "::" + _enqID);
 		}
 	}
 

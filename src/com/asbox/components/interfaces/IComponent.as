@@ -30,7 +30,9 @@ package com.asbox.components.interfaces
 		
 		function get Components():Array;
 		
-		function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void;		
+		function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void;
+		function UnregisterListener(callback:Function, type:String, component:String = ""):void;
+		
 		function PreInitialize():void;
 	}
 	
