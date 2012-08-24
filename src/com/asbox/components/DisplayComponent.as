@@ -1,6 +1,6 @@
 package com.asbox.components 
-{
-	import com.asbox.Application;
+{	
+	import com.asbox.AsBox;
 	import com.asbox.components.events.ComponentEvent;
 	import com.asbox.components.interfaces.IComponent;
 	import com.asbox.components.interfaces.IDisplayComponent;
@@ -197,7 +197,7 @@ package com.asbox.components
 			if(DebugEnums.DEBUG_MODE)
 				trace("Listener "+EventsMap.CreateType(component, type));
 				
-			EventManager.getInstance().add(Application.instance, EventsMap.CreateType(component, type), callback, autoRemove, this.ComponentHash);
+			EventManager.getInstance().add(AsBox.container, EventsMap.CreateType(component, type), callback, autoRemove, this.ComponentHash);
 		}
 		
 		public function UnregisterListener(callback:Function, type:String, component:String = ""):void
@@ -207,7 +207,7 @@ package com.asbox.components
 			
 			var eventType:String = EventsMap.CreateType(component, type);
 			
-			EventManager.getInstance().removeCallbackEvent(callback, eventType, Application.instance);
+			EventManager.getInstance().removeCallbackEvent(callback, eventType, AsBox.container);
 		}
 		
 		protected function Call(type:String, data:* = null):void
@@ -217,9 +217,9 @@ package com.asbox.components
 			if(DebugEnums.DEBUG_MODE)
 				trace("Call "+eventType);
 			
-			if (Application.instance.hasEventListener(eventType))
+			if (AsBox.container.hasEventListener(eventType))
 			{
-				Application.instance.dispatchEvent(new ComponentEvent(eventType, this.ComponentHash, this.ComponentHash, data));
+				AsBox.container.dispatchEvent(new ComponentEvent(eventType, this.ComponentHash, this.ComponentHash, data));
 			}
 		}
 		

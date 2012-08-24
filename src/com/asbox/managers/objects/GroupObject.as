@@ -1,6 +1,6 @@
 package com.asbox.managers.objects
 {
-	import com.asbox.Application;
+	import com.asbox.AsBox;
 	import com.asbox.components.events.ComponentEvent;
 	import com.asbox.components.interfaces.IComponent;
 	import com.asbox.managers.EventManager;
@@ -49,9 +49,9 @@ package com.asbox.managers.objects
 				{
 					eventType = EventsMap.CreateType(IComponent(_components[key]).ComponentHash, type);
 					
-					if (Application.instance.hasEventListener(eventType))
+					if (AsBox.container.hasEventListener(eventType))
 					{
-						Application.instance.dispatchEvent(new ComponentEvent(eventType, IComponent(_components[key]).ComponentName, IComponent(_components[key]).ComponentHash));
+						AsBox.container.dispatchEvent(new ComponentEvent(eventType, IComponent(_components[key]).ComponentName, IComponent(_components[key]).ComponentHash));
 					}
 				}
 			}	
@@ -85,7 +85,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					EventManager.getInstance().removeGroup(IComponent(_components[key]).ComponentHash, Application.instance);
+					EventManager.getInstance().removeGroup(IComponent(_components[key]).ComponentHash, AsBox.container);
 				}
 			}	
 		}

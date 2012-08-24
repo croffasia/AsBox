@@ -1,9 +1,10 @@
 package com.asbox.utils 
-{
-	import com.asbox.Application;
+{	
+	import com.asbox.AsBox;
 	
 	import flash.display.NativeWindow;
 	import flash.display.Screen;
+
 	/**
 	 * ...
 	 * @author Poluosmak Andrew
@@ -88,7 +89,7 @@ package com.asbox.utils
 		public static function getCurrentScreen():Screen
 		{ 
             var current:Screen; 
-            var screens:Array = Screen.getScreensForRectangle(Application.instance.stage.nativeWindow.bounds); 
+            var screens:Array = Screen.getScreensForRectangle(AsBox.container.stage.nativeWindow.bounds); 
             (screens.length > 0) ? current = screens[0] : current = Screen.mainScreen; 
             return current; 
         } 
