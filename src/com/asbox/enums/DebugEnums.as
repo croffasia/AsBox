@@ -7,7 +7,7 @@ package com.asbox.enums
 	public class DebugEnums 
 	{
 		
-		public static const DEBUG_MODE:Boolean = false;
+		public static const DEBUG_MODE:Boolean = true;
 		
 	}
 

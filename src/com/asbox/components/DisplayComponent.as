@@ -11,16 +11,16 @@ package com.asbox.components
 	import com.asbox.utils.EventsMap;
 	
 	import flash.display.DisplayObjectContainer;
-	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	
 	/**
 	 * ...
 	 * @author Poluosmak Andrew
 	 */
-	public class DisplayComponent extends Sprite implements IDisplayComponent 
+	public class DisplayComponent extends MovieClip implements IDisplayComponent 
 	{		
 		private var _status:int = ComponentEnums.CREATED;
-		private var _container:DisplayObjectContainer;
+		protected var _container:DisplayObjectContainer;
 		private var _OwnerComponent:IComponent;
 		private var _Components:Array = [];		
 		private var _ComponentName:String = "";
@@ -139,25 +139,27 @@ package com.asbox.components
 			return null;
 		}
 		
-		public function GetComponentByClass(component:Class):IComponent
+		public function GetComponentByClass(component:Class):Array
 		{
+			var _returned:Array = [];
+			
 			if (_Components.length > 0)
 			{
-				var _component:IComponent;
+				var _component:IComponent;				
 				
 				for (var i:int = 0;  i < _Components.length; i++ )
 				{
 					_component = ComponentManager.getInstance().GetByHash(_Components[i]);
 					
 					if (_component != null && _component is component)
-						return _component;
+						_returned.push(_component);
 				}
 			}
 			
-			return null;
+			return _returned;
 		}
 		
-		public function RemoveComponent(hash:String):Boolean 
+		public function RemoveComponent(hash:String, system:Boolean = true):Boolean 
 		{ 
 			if (_Components.length > 0)
 			{
@@ -178,14 +180,15 @@ package com.asbox.components
 							if (_Components == null)
 								_Components = [];
 						}
-			
-						ComponentManager.getInstance().Unregister(_component.ComponentHash);
+						
+						if(system == true)
+							ComponentManager.getInstance().Unregister(_component.ComponentHash);
 						
 						return true;
 					}
 				}
 			}
-				
+			
 			return false;
 		}		
 		

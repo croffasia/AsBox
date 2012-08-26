@@ -41,11 +41,10 @@ package com.asbox.managers
 		{
 			if(_groups[name] == null)
 			{
-				_groups[name] = new GroupObject();
-				return _groups[name];
+				_groups[name] = new GroupObject();				
 			}
 			
-			return null;
+			return _groups[name];
 		}		
 		
 		public function Get(name:String):GroupObject

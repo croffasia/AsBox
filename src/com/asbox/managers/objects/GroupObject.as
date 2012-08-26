@@ -28,18 +28,16 @@ package com.asbox.managers.objects
 			return _components;
 		}
 
-		public function AddComponent(component:IComponent):Boolean
+		public function AddComponent(component:IComponent):GroupObject
 		{
 			if(_components[component] == null){
 				_components[component] = component;
-				
-				return true;
 			}
 			
-			return false;
+			return this;
 		}
 		
-		public function Call(type:String):void
+		public function Call(type:String, object:* = null):void
 		{
 			if (_components != null)
 			{
@@ -51,7 +49,7 @@ package com.asbox.managers.objects
 					
 					if (AsBox.container.hasEventListener(eventType))
 					{
-						AsBox.container.dispatchEvent(new ComponentEvent(eventType, IComponent(_components[key]).ComponentName, IComponent(_components[key]).ComponentHash));
+						AsBox.container.dispatchEvent(new ComponentEvent(eventType, IComponent(_components[key]).ComponentName, IComponent(_components[key]).ComponentHash, object));
 					}
 				}
 			}	

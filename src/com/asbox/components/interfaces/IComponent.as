@@ -23,9 +23,9 @@ package com.asbox.components.interfaces
 		function Status():int;
 		
 		function AddComponent(hash:String):Boolean;
-		function RemoveComponent(name:String):Boolean;				
+		function RemoveComponent(hash:String, system:Boolean = true):Boolean;				
 		function GetComponentByName(name:String):IComponent;
-		function GetComponentByClass(component:Class):IComponent;
+		function GetComponentByClass(component:Class):Array;
 		function GetComponentByHash(hash:String):IComponent;
 		
 		function get Components():Array;
