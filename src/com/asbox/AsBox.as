@@ -4,6 +4,7 @@ package com.asbox
 	import com.asbox.managers.ComponentManager;
 	import com.asbox.managers.EventManager;
 	import com.asbox.managers.GroupManager;
+	import com.asbox.managers.LayerManager;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
@@ -39,6 +40,9 @@ package com.asbox
 			return GroupManager.getInstance();
 		}
 
-
+		public static function get LM():LayerManager
+		{
+			return LayerManager.getInstance();
+		}
 	}
 }

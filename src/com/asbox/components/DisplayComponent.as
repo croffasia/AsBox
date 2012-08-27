@@ -42,7 +42,7 @@ package com.asbox.components
 			if(DisplayContainer != null)
 				_container = DisplayContainer;
 				
-			if (_container != null)
+			if (_container != null && !_container.contains(this))
 				_container.addChild(this);
 		}
 		
@@ -175,6 +175,7 @@ package com.asbox.components
 						
 						if (index > -1)
 						{
+							_component.OwnerComponent = null;
 							_Components.splice(index, 1);
 							
 							if (_Components == null)

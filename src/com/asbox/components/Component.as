@@ -140,6 +140,7 @@ package com.asbox.components
 						
 						if (index > -1)
 						{
+							_component.OwnerComponent = null;
 							_Components.splice(index, 1);
 							
 							if (_Components == null)
