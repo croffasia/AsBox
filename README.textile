@@ -2,6 +2,19 @@ h2. AsBox
 
 Action Script Component Framework
 
+h2. Branches
+
+"Master":https://github.com/PoluosmakAndrew/AsBox/tree/master - latest stable version
+"Develop":https://github.com/PoluosmakAndrew/AsBox/tree/develop - Currently developing version
+
+h2. Documentation
+
+Coming soon
+
+h2. Examples
+
+Coming soon
+
 h2. License
 
 The MIT License
