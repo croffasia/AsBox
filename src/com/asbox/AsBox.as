@@ -9,7 +9,7 @@ package com.asbox
 	import com.asbox.managers.ComponentManager;
 	import com.asbox.managers.EventManager;
 	import com.asbox.managers.GroupManager;
-	import com.asbox.managers.LayerManager;
+	import com.asbox.managers.SceneManager;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.events.EventDispatcher;
@@ -67,12 +67,12 @@ package com.asbox
 		}
 
 		/**
-		 * Display Layers manager.
-		 * @return EventManager
+		 * Scene manager.
+		 * @return SceneManager
 		 */
-		public static function get LM():LayerManager
+		public static function get SM():SceneManager
 		{
-			return LayerManager.getInstance();
+			return SceneManager.getInstance();
 		}
 	}
 }
