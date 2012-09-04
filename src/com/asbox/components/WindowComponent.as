@@ -78,7 +78,7 @@ package com.asbox.components
 		
 		public function Hide():void 
 		{
-			//this.
+			this.visible = false;
 		}
 		
 		public function AddComponent(hash:String):Boolean 

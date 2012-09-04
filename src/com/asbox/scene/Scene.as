@@ -135,9 +135,10 @@ package com.asbox.scene
 				Options.Name = this.name;
 			}
 			
-			Options.Owner = this;
-			
+			Options.Owner = this;			
 			_Options = Options;
+			
+			AsBox.EM.add(this, SceneEvents.LIVE_RIP, onTimeRip, true);
 			
 			AsBox.SM.Register(Options.Name, this);			
 			this.LoadResources();
@@ -180,7 +181,13 @@ package com.asbox.scene
 				if(_container != null)
 					_container.addChild(this);					
 				
-				_Status = SceneStatusEnums.ACTIVE;			
+				_Status = SceneStatusEnums.ACTIVE;					
+				
+				if(Options.LiveTime > 0)
+				{
+					Options.Live();
+				}
+				
 				this.Dispatch(SceneEvents.CHANGE_STATUS, _Status);
 			}
 		}
@@ -221,7 +228,15 @@ package com.asbox.scene
 		public function set Status(value:int):void
 		{
 			_Status = value;
-		}		
+		}	
+		
+		/**
+		 * Kill scene by Live Time. Override this method for adding your logic
+		 */
+		protected function onTimeRip(event:SceneEvents):void
+		{
+			this.Hide(true);
+		}
 		
 		/**
 		 * @private	 
