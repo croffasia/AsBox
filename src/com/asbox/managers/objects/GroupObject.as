@@ -7,6 +7,7 @@
 package com.asbox.managers.objects
 {
 	import com.asbox.AsBox;
+	import com.asbox.components.base.interfaces.IComponentContainer;
 	import com.asbox.components.events.ComponentEvent;
 	import com.asbox.components.interfaces.IComponent;
 	import com.asbox.managers.EventManager;
@@ -67,7 +68,7 @@ package com.asbox.managers.objects
 		 * 
 		 * @return GroupObject
 		 */
-		public function AddComponent(component:IComponent):GroupObject
+		public function AddComponent(component:IComponentContainer):GroupObject
 		{
 			if(_components[component] == null){
 				_components[component] = component;
@@ -90,11 +91,11 @@ package com.asbox.managers.objects
 				
 				for (var key:* in _components)
 				{
-					eventType = EventsMap.CreateType(IComponent(_components[key]).ComponentHash, type);
+					eventType = EventsMap.CreateType(IComponentContainer(_components[key]).ComponentHash, type);
 					
 					if (AsBox.container.hasEventListener(eventType))
 					{
-						AsBox.container.dispatchEvent(new ComponentEvent(eventType, IComponent(_components[key]).ComponentName, IComponent(_components[key]).ComponentHash, object));
+						AsBox.container.dispatchEvent(new ComponentEvent(eventType, IComponentContainer(_components[key]).ComponentName, IComponentContainer(_components[key]).ComponentHash, object));
 					}
 				}
 			}	
@@ -114,7 +115,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					IComponent(_components[key]).Listener(callback, type, component, autoRemove);
+					IComponentContainer(_components[key]).Listener(callback, type, component, autoRemove);
 				}
 			}	
 		}
@@ -132,7 +133,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					IComponent(_components[key]).UnregisterListener(callback, type, component);
+					IComponentContainer(_components[key]).UnregisterListener(callback, type, component);
 				}
 			}	
 		}
@@ -146,7 +147,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					EventManager.getInstance().removeGroup(IComponent(_components[key]).ComponentHash, AsBox.container);
+					EventManager.getInstance().removeGroup(IComponentContainer(_components[key]).ComponentHash, AsBox.container);
 				}
 			}	
 		}
@@ -191,7 +192,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					if (IComponent(_components[key]).ComponentName == name)
+					if (IComponentContainer(_components[key]).ComponentName == name)
 					{
 						delete _components[key];
 						return true;
@@ -215,7 +216,7 @@ package com.asbox.managers.objects
 			{
 				for (var key:* in _components)
 				{
-					if (IComponent(_components[key]).ComponentHash == hash)
+					if (IComponentContainer(_components[key]).ComponentHash == hash)
 					{
 						delete _components[key];
 						return true;
