@@ -11,6 +11,7 @@ package com.asbox.components.base
 	import com.asbox.enums.ComponentEnums;
 	
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 
 	/** 
 	 * Component Object. Base component structure
@@ -43,6 +44,11 @@ package com.asbox.components.base
 		 * @private
 		 */
 		private var _owner:Object;
+		
+		/**
+		 * @private
+		 */
+		private var _eventDispatcher:EventDispatcher = new EventDispatcher();
 
 		/**
 		 * @private
@@ -98,7 +104,7 @@ package com.asbox.components.base
 		}
 		
 		public function PreInitialize():void
-		{						
+		{									
 		}
 		
 		public function Initialize(name:String):void 
@@ -123,22 +129,29 @@ package com.asbox.components.base
 			_status = value;
 		}
 		
-		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void{}		
-		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void{}
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		{
+			_eventDispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
+		}	
+		
+		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void
+		{
+			_eventDispatcher.removeEventListener(type, listener, useCapture);
+		}
 		
 		public function dispatchEvent(event:Event):Boolean
 		{
-			return false;
+			return _eventDispatcher.dispatchEvent(event);
 		}
 		
 		public function hasEventListener(type:String):Boolean
 		{
-			return false;
+			return _eventDispatcher.hasEventListener(type);
 		}
 		
 		public function willTrigger(type:String):Boolean
 		{
-			return false;
+			return _eventDispatcher.willTrigger(type);
 		}
 
 	}

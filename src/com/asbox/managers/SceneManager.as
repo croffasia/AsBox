@@ -6,6 +6,7 @@
 
 package com.asbox.managers
 {
+	import com.asbox.AsBox;
 	import com.asbox.scene.Scene;
 	import com.asbox.scene.interfaces.IScene;
 	
@@ -87,7 +88,7 @@ package com.asbox.managers
 		 * @param name Scene name
 		 */
 		public function Unregister(name:String):void
-		{
+		{			
 			delete _scenes[name];
 		}			
 	}

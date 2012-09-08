@@ -153,11 +153,27 @@ package com.asbox.managers.objects
 		}
 		
 		/**
+		 * Dispose all components in group.
+		 */
+		public function DisposeAllComponents():void
+		{
+			if (_components != null)
+			{
+				for (var key:* in _components)
+				{
+					IComponentContainer(_components[key]).Dispose();
+				}
+			}	
+		}
+		
+		/**
 		 * Dispose group
 		 */
 		public function Dispose():void
 		{
-			this.UnregisterAllListener();			
+			this.UnregisterAllListener();	
+			this.DisposeAllComponents();
+			
 			_components = null;
 		}
 		

@@ -67,6 +67,7 @@ package com.asbox.scene
 						removeChildAt(0);
 				}
 								
+				AsBox.GM.UnregisterSceneGroups(Options.Name);
 				AsBox.SM.Unregister(Options.Name);
 				_Options.Dispose();
 				

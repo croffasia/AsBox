@@ -105,7 +105,7 @@ package com.asbox.scene
 		/**
 		 * @private
 		 */
-		private function OnTimerComplete():void
+		private function OnTimerComplete(event:TimerEvent):void
 		{
 			_Timer.stop();
 			_Timer.removeEventListener(TimerEvent.TIMER_COMPLETE, OnTimerComplete);
