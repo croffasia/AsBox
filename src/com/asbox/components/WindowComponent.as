@@ -1,14 +1,17 @@
+/******************************************************************
+ * AsBox - AS3 component game framework
+ * Copyright (C) 2012 Poluosmal Andrew
+ * Email: poluosmak.a@gmail.com
+ ****************************************************************/
+
 package com.asbox.components 
 {
 	import com.asbox.AsBox;
-	import com.asbox.components.events.ComponentEvent;
-	import com.asbox.components.interfaces.IComponent;
+	import com.asbox.components.base.ComponentContainer;
+	import com.asbox.components.base.interfaces.IComponentContainer;
+	import com.asbox.components.base.interfaces.IComponentObject;
 	import com.asbox.components.interfaces.IWindowComponent;
-	import com.asbox.enums.ComponentEnums;
-	import com.asbox.enums.DebugEnums;
-	import com.asbox.managers.ComponentManager;
 	import com.asbox.managers.EventManager;
-	import com.asbox.utils.EventsMap;
 	
 	import flash.display.NativeWindow;
 	import flash.display.NativeWindowInitOptions;
@@ -21,54 +24,33 @@ package com.asbox.components
 	 */
 	public class WindowComponent extends NativeWindow implements IWindowComponent 
 	{
-		private var _status:int = ComponentEnums.CREATED;
-		private var _Components:Array = [];		
-		private var _ComponentName:String = "";
-		private var _ComponentHash:String = "";
-		private var _OwnerComponent:IComponent;
+		protected var _ContainerComponent:IComponentContainer;
 		
 		public function WindowComponent(init:NativeWindowInitOptions = null) 
 		{			
+			_ContainerComponent = new ComponentContainer(this);
+			
 			if (init == null) 
 			{
 				init = new NativeWindowInitOptions();
 				init.renderMode = NativeWindowRenderMode.GPU;
 			}
 			
-			super(init);					
-			ComponentManager.getInstance().Register(this as IComponent);
-								
+			super(init);	
+			
+			AsBox.CM.Register(this);
+			
 			this.PreInitialize();
 		}
 		
-		public function PreInitialize():void
+		protected function PreInitialize():void
 		{			
 			EventManager.getInstance().add(this, Event.CLOSING, onNativeWindowClosing, true, this.ComponentHash);	
 		}
 		
-		public function Initialize(name:String):void 
+		public function get Status():int
 		{
-			this.ComponentName = name;
-			
-			_status = ComponentEnums.CREATED; 	
-			this.Call(ComponentEvent.LOADED);
-		}		
-		
-		public function ActivateComponent():void
-		{
-			this._status = ComponentEnums.ACTIVE;
-			this.Call(ComponentEvent.ACTIVE);
-		}
-		
-		public function DeactivateComponent():void
-		{
-			this._status = ComponentEnums.INACTIVE;
-			this.Call(ComponentEvent.INACTIVE);
-		}
-		
-		public function Status():int
-		{
-			return _status;
+			return ContainerComponent.Status;
 		}
 		
 		public function Show():void 
@@ -81,156 +63,109 @@ package com.asbox.components
 			this.visible = false;
 		}
 		
+		public function Initialize(name:String):void 
+		{
+			ContainerComponent.Initialize(name);
+		}
+		
+		public function ActivateComponent():void
+		{
+			ContainerComponent.ActivateComponent();
+		}
+		
+		public function DeactivateComponent():void
+		{
+			ContainerComponent.DeactivateComponent();
+		}
+		
 		public function AddComponent(hash:String):Boolean 
 		{ 
-			var _component:IComponent = ComponentManager.getInstance().GetByHash(hash);
-			
-			if (_component == null)
-				return false;
-						
-			_component.OwnerComponent = this as IComponent;
-			
-			_Components.push(hash);
-			return true;
+			return ContainerComponent.AddComponent(hash);
 		}
 		
-		public function GetComponentByHash(hash:String):IComponent
-		{
-			var index:Number = _Components.indexOf(hash);
-						
-			if (index > -1)
-			{
-				return ComponentManager.getInstance().GetByHash(_Components[index]);			
-			}
-													
-			return null;
+		public function GetComponentByHash(hash:String):IComponentObject
+		{							
+			return ContainerComponent.GetComponentByHash(hash);
 		}
 		
-		public function GetComponentByName(name:String):IComponent
+		public function GetComponentByName(name:String):IComponentObject
 		{
-			if (_Components.length > 0)
-			{
-				var _component:IComponent;
-				
-				for (var i:int = 0;  i < _Components.length; i++ )
-				{
-					_component = ComponentManager.getInstance().GetByHash(_Components[i]);
-					
-					if (_component != null && _component.ComponentName == name)
-						return _component;
-				}
-			}
-			
-			return null;
+			return ContainerComponent.GetComponentByName(name);
 		}
 		
 		public function GetComponentByClass(component:Class):Array
 		{
-			var _returned:Array = [];
-			
-			if (_Components.length > 0)
-			{
-				var _component:IComponent;				
-				
-				for (var i:int = 0;  i < _Components.length; i++ )
-				{
-					_component = ComponentManager.getInstance().GetByHash(_Components[i]);
-					
-					if (_component != null && _component is component)
-						_returned.push(_component);
-				}
-			}
-			
-			return _returned;
+			return ContainerComponent.GetComponentByClass(component);
 		}
 		
 		public function RemoveComponent(hash:String, system:Boolean = true):Boolean 
 		{ 
-			if (_Components.length > 0)
-			{
-				var _component:IComponent;
-				
-				for (var i:int = 0;  i < _Components.length; i++ )
-				{
-					_component = ComponentManager.getInstance().GetByHash(_Components[i]);
-					
-					if (_component != null && _component.ComponentHash == hash)
-					{
-						var index:Number = _Components.indexOf(_component.ComponentHash);
-						
-						if (index > -1)
-						{
-							_component.OwnerComponent = null;
-							_Components.splice(index, 1);
-							
-							if (_Components == null)
-								_Components = [];
-						}
-						
-						if(system == true)
-							ComponentManager.getInstance().Unregister(_component.ComponentHash);
-						
-						return true;
-					}
-				}
-			}
-			
-			return false;
-		}	
+			return ContainerComponent.RemoveComponent(hash, system);
+		}		
 		
 		public function Listener(callback:Function, type:String, component:String = "", autoRemove:Boolean = false):void
 		{
-			if (component == "")
-				component = this.ComponentHash;
-			
-			if(DebugEnums.DEBUG_MODE)
-				trace("Listener "+EventsMap.CreateType(component, type));
-				
-			EventManager.getInstance().add(AsBox.container, EventsMap.CreateType(component, type), callback, autoRemove, this.ComponentHash);
+			ContainerComponent.Listener(callback, type, component, autoRemove);
 		}
 		
 		public function UnregisterListener(callback:Function, type:String, component:String = ""):void
 		{
-			if (component == "")
-				component = this.ComponentHash;
-			
-			var eventType:String = EventsMap.CreateType(component, type);
-			
-			EventManager.getInstance().removeCallbackEvent(callback, eventType, AsBox.container);
+			ContainerComponent.UnregisterListener(callback, type, component);
 		}
 		
-		protected function Call(type:String, data:* = null):void
+		public function Call(type:String, data:* = null):void
 		{
-			var eventType:String = EventsMap.CreateType(this.ComponentHash, type);
-			
-			if(DebugEnums.DEBUG_MODE)
-				trace("Call "+eventType);
-			
-			if (AsBox.container.hasEventListener(eventType))
-			{
-				AsBox.container.dispatchEvent(new ComponentEvent(eventType, this.ComponentName, this.ComponentHash, data));
-			}
+			ContainerComponent.Call(type, data);
+		}
+		
+		public function get Components():Array 
+		{
+			return ContainerComponent.Components;
+		}
+		
+		public function get ComponentName():String 
+		{
+			return ContainerComponent.ComponentName;
+		}
+		
+		public function set ComponentName(value:String):void 
+		{
+			ContainerComponent.ComponentName = value;
+		}
+		
+		public function get OwnerComponent():IComponentObject 
+		{
+			return ContainerComponent.OwnerComponent;
+		}
+		
+		public function set OwnerComponent(value:IComponentObject):void 
+		{
+			ContainerComponent.OwnerComponent = value;
+		}
+		
+		public function get ComponentHash():String 
+		{
+			return ContainerComponent.ComponentHash;
+		}
+		
+		public function set ComponentHash(value:String):void 
+		{
+			ContainerComponent.ComponentHash = value;
 		}
 		
 		public function Dispose():void 
 		{									
 			EventManager.getInstance().remove(this);
+			this.close();			
+			ContainerComponent.Dispose();
+		}
+		
+		protected function get ContainerComponent():IComponentContainer
+		{
+			//if(_ContainerComponent == null)
+			//	_ContainerComponent = new ComponentContainer(this);
 			
-			if (_Components != null && _Components.length > 0)
-			{
-				while (_Components.length > 0)
-				{
-					this.RemoveComponent(_Components[0]);
-				}
-			}					
-			
-			if (_OwnerComponent != null)
-			{
-				_OwnerComponent.RemoveComponent(this.ComponentHash);
-			}
-			
-			this.close();
-			this.Call(ComponentEvent.DISPOSED);
+			return _ContainerComponent;
 		}
 		
 		private function onNativeWindowClosing(event:Event):void 
@@ -238,42 +173,6 @@ package com.asbox.components
 			event.preventDefault();
 			this.Dispose();							
 		}
-		
-		public function get Components():Array 
-		{
-			return _Components;
-		}
-		
-		public function get ComponentName():String 
-		{
-			return _ComponentName;
-		}
-		
-		public function set ComponentName(value:String):void 
-		{
-			_ComponentName = value;
-		}
-		
-		public function get OwnerComponent():IComponent 
-		{
-			return _OwnerComponent;
-		}
-		
-		public function set OwnerComponent(value:IComponent):void 
-		{
-			_OwnerComponent= value;
-		}
-		
-		public function get ComponentHash():String 
-		{
-			return _ComponentHash;
-		}
-		
-		public function set ComponentHash(value:String):void 
-		{
-			_ComponentHash = value;
-		}
-		
 	}
 
 }

@@ -11,6 +11,11 @@ package com.asbox.managers
 	
 	import flash.utils.Dictionary;
 
+	/** 
+	 * Scene Manager
+	 * 
+	 * @author Poluosmak Andrew
+	 */
 	public class SceneManager
 	{
 		/**

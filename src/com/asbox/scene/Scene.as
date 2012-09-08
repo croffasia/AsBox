@@ -145,7 +145,7 @@ package com.asbox.scene
 		}
 		
 		/**
-		 * Load Scene Resources. Override this method for load our resources 
+		 * Load Scene Resources. Override this method for load your resources 
 		 */
 		protected function LoadResources():void
 		{
