@@ -10,6 +10,7 @@ package com.asbox
 	import com.asbox.managers.EventManager;
 	import com.asbox.managers.GroupManager;
 	import com.asbox.managers.SceneManager;
+	import com.asbox.net.NetFactory;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.events.EventDispatcher;
@@ -73,6 +74,15 @@ package com.asbox
 		public static function get SM():SceneManager
 		{
 			return SceneManager.getInstance();
+		}
+		
+		/**
+		 * Net Connection providers
+		 * @return NetFactory
+		 */
+		public static function get NF():NetFactory
+		{
+			return NetFactory.getInstance();
 		}
 	}
 }
