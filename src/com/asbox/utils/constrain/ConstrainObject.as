@@ -5,18 +5,23 @@ package com.asbox.utils.constrain
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	import flash.geom.Point;
 
 	public class ConstrainObject
 	{
 		public var object:DisplayObject;
 		public var size:uint;
-		public var padding:int;
+		public var padding:Point;
 		public var parent:Object;
 		
-		public function ConstrainObject(object:DisplayObject, size:uint, padding:int = 0, parent:Object = null)
+		public function ConstrainObject(object:DisplayObject, size:uint, padding:Point = null, parent:Object = null)
 		{
 			this.object = object;
 			this.size = size;
+			
+			if(padding == null)
+				padding = new Point(0, 0);
+			
 			this.padding = padding;
 			
 			if(parent == null && object.parent != null)

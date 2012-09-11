@@ -3,6 +3,8 @@ package com.asbox.utils.constrain
 	import flash.display.DisplayObject;
 	import flash.display.NativeWindow;
 	import flash.display.Stage;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 
 	public class Constrain
@@ -16,8 +18,8 @@ package com.asbox.utils.constrain
 		
 		private static var _constrains:Dictionary = new Dictionary(true);
 			
-		public static function Add(object:DisplayObject, size:uint, padding:int = 0, parent:Object = null):void
-		{						
+		public static function Add(object:DisplayObject, size:uint, padding:Point = null, parent:Object = null):void
+		{									
 			if(object.parent == null && parent == null)
 				return;
 			
@@ -29,7 +31,7 @@ package com.asbox.utils.constrain
 			_constrains[object] = new ConstrainObject(object, size, padding, parent);
 		}
 		
-		public static function Apply(object:DisplayObject, size:uint, padding:int = 0, parent:Object = null):void
+		public static function Apply(object:DisplayObject, size:uint, padding:Point = null, parent:Object = null):void
 		{
 			if(parent == null && object.parent != null)
 				parent = object.parent;
@@ -37,6 +39,9 @@ package com.asbox.utils.constrain
 			if(object.parent == null && parent == null)
 				return;
 			
+			if(padding == null)
+				padding = new Point(0, 0);
+									
 			var ParentWidth:Number = parent.width;
 			var ParentHeight:Number = parent.height;
 			
@@ -53,16 +58,16 @@ package com.asbox.utils.constrain
 			}
 							
 			if(size & LEFT)
-				object.x = padding;
+				object.x = padding.x;
 			
 			if(size & RIGHT)
-				object.x = ParentWidth - object.width - padding;
+				object.x = ParentWidth - object.width - padding.x;
 			
 			if(size & TOP)
-				object.y = padding;
+				object.y = padding.y;
 			
 			if(size & BOTTOM)
-				object.y = ParentHeight - object.height - padding;
+				object.y = ParentHeight - object.height - padding.y;
 			
 			if(size & CENTER)
 			{
@@ -71,10 +76,11 @@ package com.asbox.utils.constrain
 			}
 			
 			if(size & ALL){
-				object.width = ParentWidth - padding * 2;				
-				object.height = ParentHeight - padding * 2;
-				object.x = object.y = padding;
-			}
+				object.width = ParentWidth * 2;				
+				object.height = ParentHeight * 2;
+				object.x = padding.x;
+				object.y = padding.y;
+			}			
 		}
 		
 		public static function ClearAllConstrains():void
